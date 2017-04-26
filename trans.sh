@@ -11,7 +11,7 @@ elif [[ -n $2 ]]; then
     FILENAME=$2
 fi
 
-#set -eu
+set -eu
 
 PDFNAME=$1
 FOLDERNAME=${1%.*}
@@ -41,7 +41,7 @@ sed 's/\(\.\) \([A-Z]\)/\1\n\2/g' ${TMPFILE2} > ${FILENAME}
 ### trans ###
 echo "\documentclass{jsarticle}" > ${FILENAME}.tex
 echo "\begin{document}" >> ${FILENAME}.tex
-trans -b -i ${FILENAME} :${LANGUAGE} >> ${FILENAME}.tex
+trans -b -i ${FILENAME} :${LANGUAGE} >> ${FILENAME}.tex 
 echo "\end{document}" >> ${FILENAME}.tex
 
 ### LaTeX ###
