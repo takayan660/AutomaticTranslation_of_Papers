@@ -11,7 +11,7 @@ elif [[ -n $2 ]]; then
     FILENAME=$2
 fi
 
-set -u
+#set -u
 
 PDFNAME=$1
 FOLDERNAME=${1%.*}
