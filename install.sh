@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -eu
+set -u
 
 #atexit() {
 #    [[ -d ${TMP_R} ]] && rm -rf "${TMP_R}"
