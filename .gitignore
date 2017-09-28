@@ -2,3 +2,7 @@
 *#
 *.swp
 *.out
+
+*.aux
+*.log
+*.dvi
