@@ -1,5 +1,7 @@
 language: bash
 
+sudo: required
+
 install: ./install.sh
 
 script:
