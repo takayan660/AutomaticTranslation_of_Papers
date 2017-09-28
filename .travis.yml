@@ -1,0 +1,6 @@
+language: bash
+
+install: ./install.sh
+
+script:
+    cd sample/ && ./sample.sh
