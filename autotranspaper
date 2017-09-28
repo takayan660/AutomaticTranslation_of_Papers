@@ -51,4 +51,4 @@ if [ -f ${FILENAME}.dvi ]; then
 fi
 
 ### PDF display ###
-evince ${FILENAME}.pdf
+#evince ${FILENAME}.pdf
