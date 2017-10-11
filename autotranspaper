@@ -11,19 +11,19 @@ elif [[ -n $2 ]]; then
     FILENAME=$2
 fi
 
-#set -u
+set -u
 
 PDFNAME=$1
 FOLDERNAME=${1%.*}
 LANGUAGE=ja
 
-atexit() {
-    [[ -n ${TMPFILE}* ]] && rm -f "${TMPFILE}*"
-}
-TMPFILE1=`mktemp`
-TMPFILE2=`mktemp`
+#atexit() {
+#    [[ -n ${TMPFILE}* ]] && rm -f "${TMPFILE}*"
+#}
+PDFTOTEXT_TMP_DIR=/tmp/pdftopdf/${FILENAME}
+mkdir -p $PDFTOTEXT_TMP_DIR
 trap atexit EXIT
-trap '[[ -n ${TMPFILE-} ]] && rm -f "${TMPFILE}"' SIGHUP SIGINT SIGTERM
+trap '[[ -n ${PDFTOTEXT_TMP_DIR} ]] && rm -f "${PDFTOTEXT_TMP_DIR}"' SIGHUP SIGINT SIGTERM
 
 if [ ! -d $FOLDERNAME ]; then
     mkdir -p $FOLDERNAME
@@ -32,16 +32,30 @@ fi
 cd ${FOLDERNAME}
 
 ### PDF to text ###
-pdftotext ../${PDFNAME} ${TMPFILE1}
+PAGES_NUM=$(pdfinfo ../${PDFNAME} | grep -i pages | awk '{print $2}')
+
+for i in `seq 1 $PAGES_NUM`
+do
+    pdftotext -f $i -l $i ../${PDFNAME} ${PDFTOTEXT_TMP_DIR}Former${i}
+done
 
 ### Shaping ###
-sed -e ':loop; N; $!b loop; s/\([0-9,A-z,-,",¨]\)\n/\1 /g' ${TMPFILE1} > ${TMPFILE2}
-sed 's/\(\.\) \([A-Z]\)/\1\n\2/g' ${TMPFILE2} > ${FILENAME}
+for i in `seq 1 $PAGES_NUM`
+do
+    sed -e ':loop; N; $!b loop; s/\([0-9,A-z,-,",¨]\)\n/\1 /g' ${PDFTOTEXT_TMP_DIR}Former${i} > ${PDFTOTEXT_TMP_DIR}Former${i}_1
+    sed 's/\(\.\) \([A-Z]\)/\1\n\2/g' ${PDFTOTEXT_TMP_DIR}Former${i}_1 > ${PDFTOTEXT_TMP_DIR}Shaping${i}
+done
 
 ### trans ###
 echo "\documentclass{jsarticle}" > ${FILENAME}.tex
 echo "\begin{document}" >> ${FILENAME}.tex
-trans -b -i ${FILENAME} :${LANGUAGE} >> ${FILENAME}.tex 
+
+for i in `seq 1 $PAGES_NUM`
+do
+    trans -b -i ${PDFTOTEXT_TMP_DIR}Shaping${i} :${LANGUAGE} >> ${FILENAME}.tex
+    echo "\newpage" >> ${FILENAME}.tex
+done 
+
 echo "\end{document}" >> ${FILENAME}.tex
 
 ### LaTeX ###
