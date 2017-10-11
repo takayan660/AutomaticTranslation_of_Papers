@@ -20,12 +20,14 @@ PDFNAME=$1
 FOLDERNAME=$FILENAME
 LANGUAGE=ja
 
-#atexit() {
-#    [[ -n ${TMPFILE}* ]] && rm -f "${TMPFILE}*"
-#}
-PDFTOTEXT_TMP_DIR=`mktemp -d`
+unset PDFTOTEXT_TMP_DIR
+
+atexit() {
+    [ -n ${PDFTOTEXT_TMP_DIR}* ] && rm -rf "{PDFTOTEXT_TMP_DIR}*"
+}
 trap atexit EXIT
-trap '[ -n ${PDFTOTEXT_TMP_DIR} ] && rm -f "${PDFTOTEXT_TMP_DIR}"' 1 2 3 15
+trap '[ -n ${PDFTOTEXT_TMP_DIR} ] && rm -rf "${PDFTOTEXT_TMP_DIR}"; trap - EXIT; atexit; exit -1' INT PIPE TERM
+PDFTOTEXT_TMP_DIR=`mktemp -d`
 
 if [ ! -d $FOLDERNAME ]; then
     mkdir -p $FOLDERNAME
@@ -59,6 +61,9 @@ do
 done 
 
 echo "\\\end{document}" >> ${FILENAME}.tex
+
+### remove ###
+rm -rf ${PDFTOTEXT_TMP_DIR}
 
 ### LaTeX ###
 ptex2pdf -l ${FILENAME}.tex
