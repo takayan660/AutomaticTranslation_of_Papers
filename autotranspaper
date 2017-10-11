@@ -13,6 +13,9 @@ fi
 
 set -u
 
+### Move to file location ###
+cd `pwd`
+
 PDFNAME=$1
 FOLDERNAME=${1%.*}
 LANGUAGE=ja
@@ -21,7 +24,7 @@ LANGUAGE=ja
 #    [[ -n ${TMPFILE}* ]] && rm -f "${TMPFILE}*"
 #}
 PDFTOTEXT_TMP_DIR=/tmp/pdftopdf/${FILENAME}
-mkdir -p $PDFTOTEXT_TMP_DIR
+sudo mkdir -p $PDFTOTEXT_TMP_DIR
 trap atexit EXIT
 trap '[[ -n ${PDFTOTEXT_TMP_DIR} ]] && rm -f "${PDFTOTEXT_TMP_DIR}"' SIGHUP SIGINT SIGTERM
 
