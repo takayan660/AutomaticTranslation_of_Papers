@@ -2,6 +2,8 @@
 
 set -u
 
+AUTOTRANSPAPER_DIR=`pwd`
+
 #atexit() {
 #    [[ -d ${TMP_R} ]] && rm -rf "${TMP_R}"
 #}
@@ -31,5 +33,5 @@ cd translate-shell/
 sudo make install
 
 ### autotranspaper install ###
-sudo cp autotranspaper /usr/local/bin
+sudo cp ${AUTOTRANSPAPER_DIR}/autotranspaper /usr/local/bin
 exec $SHELL -l
