@@ -17,7 +17,7 @@ set -u
 cd `pwd`
 
 PDFNAME=$1
-FOLDERNAME=${1%.*}
+FOLDERNAME=$FILENAME
 LANGUAGE=ja
 
 #atexit() {
