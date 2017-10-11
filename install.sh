@@ -30,3 +30,6 @@ git clone https://github.com/soimort/translate-shell.git
 cd translate-shell/
 sudo make install
 
+### autotranspaper install ###
+sudo cp autotranspaper /usr/local/bin
+exec $SHELL -l
