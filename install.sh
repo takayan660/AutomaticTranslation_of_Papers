@@ -34,4 +34,3 @@ sudo make install
 
 ### autotranspaper install ###
 sudo cp ${AUTOTRANSPAPER_DIR}/autotranspaper /usr/local/bin
-exec $SHELL -l
