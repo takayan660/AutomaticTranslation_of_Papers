@@ -23,8 +23,7 @@ LANGUAGE=ja
 #atexit() {
 #    [[ -n ${TMPFILE}* ]] && rm -f "${TMPFILE}*"
 #}
-PDFTOTEXT_TMP_DIR=/tmp/pdftopdf/${FILENAME}
-sudo mkdir -p $PDFTOTEXT_TMP_DIR
+PDFTOTEXT_TMP_DIR=`mktemp -d`
 trap atexit EXIT
 trap '[ -n ${PDFTOTEXT_TMP_DIR} ] && rm -f "${PDFTOTEXT_TMP_DIR}"' 1 2 3 15
 
@@ -39,14 +38,14 @@ PAGES_NUM=$(pdfinfo ../${PDFNAME} | grep -i pages | awk '{print $2}')
 
 for i in `seq 1 $PAGES_NUM`
 do
-    pdftotext -f $i -l $i ../${PDFNAME} ${PDFTOTEXT_TMP_DIR}Former${i}
+    pdftotext -f $i -l $i ../${PDFNAME} ${PDFTOTEXT_TMP_DIR}/Former${i}
 done
 
 ### Shaping ###
 for i in `seq 1 $PAGES_NUM`
 do
-    sed -e ':loop; N; $!b loop; s/\([0-9,A-z,-,",¨]\)\n/\1 /g' ${PDFTOTEXT_TMP_DIR}Former${i} > ${PDFTOTEXT_TMP_DIR}Former${i}_1
-    sed 's/\(\.\) \([A-Z]\)/\1\n\2/g' ${PDFTOTEXT_TMP_DIR}Former${i}_1 > ${PDFTOTEXT_TMP_DIR}Shaping${i}
+    sed -e ':loop; N; $!b loop; s/\([0-9,A-z,-,",¨]\)\n/\1 /g' ${PDFTOTEXT_TMP_DIR}/Former${i} > ${PDFTOTEXT_TMP_DIR}/Former${i}_1
+    sed 's/\(\.\) \([A-Z]\)/\1\n\2/g' ${PDFTOTEXT_TMP_DIR}/Former${i}_1 > ${PDFTOTEXT_TMP_DIR}/Shaping${i}
 done
 
 ### trans ###
@@ -55,7 +54,7 @@ echo "\\\begin{document}" >> ${FILENAME}.tex
 
 for i in `seq 1 $PAGES_NUM`
 do
-    trans -b -i ${PDFTOTEXT_TMP_DIR}Shaping${i} :${LANGUAGE} >> ${FILENAME}.tex
+    trans -b -i ${PDFTOTEXT_TMP_DIR}/Shaping${i} :${LANGUAGE} >> ${FILENAME}.tex
     echo "\\\newpage" >> ${FILENAME}.tex
 done 
 
