@@ -6,9 +6,10 @@ if [ -z $1 ]; then
 fi
 
 if [ -z $2 ]; then
-    FILENAME=$(echo $1 | sed 's/\.pdf//')
+    FILENAME=$(echo $1 | sed 's/\.pdf//')_translation
+
 elif [ -n $2 ]; then
-    FILENAME=$2
+    FILENAME=${2}
 fi
 
 set -u
@@ -19,6 +20,7 @@ cd `pwd`
 PDFNAME=$1
 FOLDERNAME=$FILENAME
 LANGUAGE=ja
+PDF_DIR=`pwd`
 
 unset PDFTOTEXT_TMP_DIR
 
@@ -29,44 +31,52 @@ trap atexit EXIT
 trap 'trap - EXIT; atexit; exit -1' INT PIPE TERM
 PDFTOTEXT_TMP_DIR=`mktemp -d`
 
-if [ ! -d $FOLDERNAME ]; then
-    mkdir -p $FOLDERNAME
-fi
+#if [ ! -d $FOLDERNAME ]; then
+#    mkdir -p $FOLDERNAME
+#fi
 
-cd ${FOLDERNAME}
+#cd ${FOLDERNAME}
+
+cd ${PDFTOTEXT_TMP_DIR}
 
 ### PDF to text ###
-PAGES_NUM=$(pdfinfo ../${PDFNAME} | grep -i pages | awk '{print $2}')
+PAGES_NUM=$(pdfinfo ${PDF_DIR}/${PDFNAME} | grep -i pages | awk '{print $2}')
 
 for i in `seq 1 $PAGES_NUM`
 do
-    pdftotext -f $i -l $i ../${PDFNAME} ${PDFTOTEXT_TMP_DIR}/Former${i}
+    pdftotext -f $i -l $i ${PDF_DIR}/${PDFNAME} ./Former${i}
 done
 
 ### Shaping ###
 for i in `seq 1 $PAGES_NUM`
 do
-    sed -e ':loop; N; $!b loop; s/\([0-9,A-z,-,",¨]\)\n/\1 /g' ${PDFTOTEXT_TMP_DIR}/Former${i} > ${PDFTOTEXT_TMP_DIR}/Former${i}_1
-    sed 's/\(\.\) \([A-Z]\)/\1\n\2/g' ${PDFTOTEXT_TMP_DIR}/Former${i}_1 > ${PDFTOTEXT_TMP_DIR}/Shaping${i}
+    sed -e ':loop; N; $!b loop; s/\([0-9,A-z,-,",¨]\)\n/\1 /g' ./Former${i} > ./Former${i}_1
+    sed 's/\(\.\) \([A-Z]\)/\1\n\2/g' ./Former${i}_1 > ./Shaping${i}
 done
 
 ### translation ###
-echo "\documentclass{jsarticle}" > ${FILENAME}.tex
-echo "\\\begin{document}" >> ${FILENAME}.tex
+echo "\documentclass{jsarticle}" > ./${FILENAME}.tex
+echo "\\\begin{document}" >> ./${FILENAME}.tex
 
 for i in `seq 1 $PAGES_NUM`
 do
-    trans -b -i ${PDFTOTEXT_TMP_DIR}/Shaping${i} :${LANGUAGE} >> ${FILENAME}.tex
-    echo "\\\newpage" >> ${FILENAME}.tex
+    trans -b -i ./Shaping${i} :${LANGUAGE} >> ./${FILENAME}.tex
+    echo "\\\newpage" >> ./${FILENAME}.tex
 done 
 
-echo "\\\end{document}" >> ${FILENAME}.tex
+echo "\\\end{document}" >> ./${FILENAME}.tex
 
 ### LaTeX ###
-ptex2pdf -l ${FILENAME}.tex
-if [ -f ${FILENAME}.dvi ]; then
-    dvipdfmx ${FILENAME}.dvi
+ptex2pdf -l ./${FILENAME}.tex
+if [ -f ./${FILENAME}.dvi ]; then
+    dvipdfmx ./${FILENAME}.dvi
 fi
+
+ls
+
+echo ${FILENAME}
+echo ${PDF_DIR}
+cp ./${FILENAME}.pdf ${PDF_DIR}
 
 ### PDF display ###
 #evince ${FILENAME}.pdf
