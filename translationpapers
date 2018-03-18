@@ -50,7 +50,7 @@ do
     sed 's/\(\.\) \([A-Z]\)/\1\n\2/g' ${PDFTOTEXT_TMP_DIR}/Former${i}_1 > ${PDFTOTEXT_TMP_DIR}/Shaping${i}
 done
 
-### trans ###
+### translation ###
 echo "\documentclass{jsarticle}" > ${FILENAME}.tex
 echo "\\\begin{document}" >> ${FILENAME}.tex
 

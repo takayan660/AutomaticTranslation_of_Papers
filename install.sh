@@ -2,7 +2,7 @@
 
 set -u
 
-AUTOTRANSPAPER_DIR=`pwd`
+TRANSLATIONPAPERS_DIR=`pwd`
 
 #atexit() {
 #    [[ -d ${TMP_R} ]] && rm -rf "${TMP_R}"
@@ -32,5 +32,5 @@ git clone https://github.com/soimort/translate-shell.git
 cd translate-shell/
 sudo make install
 
-### autotranspaper install ###
-sudo cp ${AUTOTRANSPAPER_DIR}/autotranspaper /usr/local/bin
+### translation papers install ###
+sudo cp ${TRANSLATIONPAPERS_DIR}/translationpapers /usr/local/bin
